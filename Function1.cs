@@ -5,20 +5,33 @@ using Microsoft.Extensions.Logging;
 
 namespace SQLDatabaseAPI
 {
-    public class Function1
+    public class Sum
     {
-        private readonly ILogger<Function1> _logger;
+        private readonly ILogger<Sum> _logger;
 
-        public Function1(ILogger<Function1> logger)
+        public Sum(ILogger<Sum> logger)
         {
             _logger = logger;
         }
 
-        [Function("Function1")]
+        [Function("Sum")]
         public IActionResult Run([HttpTrigger(AuthorizationLevel.Function, "get", "post")] HttpRequest req)
         {
             _logger.LogInformation("C# HTTP trigger function processed a request.");
-            return new OkObjectResult("Welcome to Azure Functions!");
+
+            if (!req.Query.TryGetValue("x", out var xValue) || !int.TryParse(xValue, out int x))
+            {
+                return new BadRequestObjectResult("Query parameter 'x' is missing or invalid.");
+            }
+
+            if (!req.Query.TryGetValue("y", out var yValue) || !int.TryParse(yValue, out int y))
+            {
+                return new BadRequestObjectResult("Query parameter 'y' is missing or invalid.");
+            }
+
+            int result = x + y;
+
+            return new OkObjectResult(result);
         }
     }
 }
